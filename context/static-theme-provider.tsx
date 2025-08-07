@@ -1,9 +1,9 @@
-import { fragmentOn } from "basehub";
 import colors from "tailwindcss/colors";
 import { oklch, rgb } from "culori";
+import { StaticTheme } from "@/lib/static-data";
 
 function anyColorToRgb(color: string) {
-  const parsed = oklch(color); // or use parse() for any format
+  const parsed = oklch(color);
   const converted = rgb(parsed);
   if (!converted) throw new Error(`Invalid color format: ${color}`);
   return {
@@ -12,9 +12,6 @@ function anyColorToRgb(color: string) {
     b: Math.round(converted.b * 255),
   };
 }
-
-export const themeFragment = fragmentOn("Theme", { accent: true, grayScale: true });
-export type BaseHubTheme = fragmentOn.infer<typeof themeFragment>;
 
 const CONTRAST_WARNING_COLORS: (keyof typeof colors)[] = [
   "amber",
@@ -60,11 +57,13 @@ function generateOpacityVariants(baseName: string, rgbVarName: string): string[]
   });
 }
 
-export function BaseHubThemeProvider({ theme }: { theme: BaseHubTheme }) {
-  const accent = colors[theme.accent];
-  const grayScale = colors[theme.grayScale];
+export function StaticThemeProvider({ theme }: { theme: StaticTheme }) {
+  const accent = colors[theme.accent as keyof typeof colors];
+  const grayScale = colors[theme.grayScale as keyof typeof colors];
 
-  const css = Object.entries(accent).map(([key, value]) => {
+  const css: string[] = [];
+
+  Object.entries(accent).forEach(([key, value]) => {
     const rgb = anyColorToRgb(value);
     const result = [
       `--accent-${key}: ${value}; --accent-rgb-${key}: ${rgb.r}, ${rgb.g}, ${rgb.b};`,
@@ -83,7 +82,7 @@ export function BaseHubThemeProvider({ theme }: { theme: BaseHubTheme }) {
       }
     });
 
-    return result.join(" ");
+    css.push(result.join(" "));
   });
 
   Object.entries(grayScale).forEach(([key, value]) => {
@@ -108,7 +107,7 @@ export function BaseHubThemeProvider({ theme }: { theme: BaseHubTheme }) {
     css.push(result.join(" "));
   });
 
-  if (CONTRAST_WARNING_COLORS.includes(theme.accent)) {
+  if (CONTRAST_WARNING_COLORS.includes(theme.accent as keyof typeof colors)) {
     css.push(`--text-on-accent: ${colors.gray[950]};`);
     css.push(`--text-on-accent-rgb: 3, 7, 18;`); // gray-950 RGB values
   }
@@ -144,4 +143,4 @@ export function BaseHubThemeProvider({ theme }: { theme: BaseHubTheme }) {
       }
       `}</style>
   );
-}
+} 

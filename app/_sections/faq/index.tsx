@@ -1,39 +1,56 @@
-import { Heading } from "../../../common/heading";
-import { Section } from "../../../common/section-wrapper";
-import { headingFragment } from "../../../lib/basehub/fragments";
-import { fragmentOn } from "basehub";
+import { Heading } from "@/common/heading";
 
-export const faqFragment = fragmentOn("FaqComponent", {
-  heading: headingFragment,
-  questions: {
-    items: {
-      _analyticsKey: true,
-      _title: true,
-      answer: true,
-    },
-  },
-});
+interface FaqProps {
+  _id: string;
+  heading: {
+    title: string;
+    subtitle?: string;
+    tag?: string;
+    align?: string;
+  };
+  items: Array<{
+    _id: string;
+    question: string;
+    answer: string;
+  }>;
+}
 
-export type Faq = fragmentOn.infer<typeof faqFragment>;
-
-export function Faq(faq: Faq) {
+export function Faq({ _id, heading, items }: FaqProps) {
   return (
-    <Section>
-      <Heading {...faq.heading}>
-        <h4>{faq.heading.title}</h4>
-      </Heading>
-      <ul className="mx-auto flex w-full grid-cols-3 flex-col place-content-start items-start gap-8 self-stretch lg:grid lg:gap-14 lg:px-24">
-        {faq.questions.items.map((question) => (
-          <li key={question._title} className="flex flex-col gap-1.5">
-            <p className="font-medium leading-relaxed tracking-tighter sm:text-lg">
-              {question._title}
-            </p>
-            <p className="text-sm leading-relaxed tracking-tight text-[--text-tertiary] dark:text-[--dark-text-tertiary] sm:text-base">
-              {question.answer}
-            </p>
-          </li>
-        ))}
-      </ul>
-    </Section>
+    <section className="container mx-auto px-6 py-16">
+      <div className="mx-auto max-w-4xl">
+        <Heading {...heading} />
+        <div className="mt-12 space-y-6">
+          {items.map((item) => (
+            <details
+              key={item._id}
+              className="group rounded-lg border border-[--border] bg-[--surface-secondary] dark:border-[--dark-border] dark:bg-[--dark-surface-secondary]"
+            >
+              <summary className="flex cursor-pointer items-center justify-between p-6 text-left font-medium text-[--text-primary] dark:text-[--dark-text-primary]">
+                {item.question}
+                <svg
+                  className="h-5 w-5 transform transition-transform group-open:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </summary>
+              <div className="border-t border-[--border] p-6 dark:border-[--dark-border]">
+                <p className="text-[--text-secondary] dark:text-[--dark-text-secondary]">
+                  {item.answer}
+                </p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

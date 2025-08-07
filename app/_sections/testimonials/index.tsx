@@ -1,31 +1,38 @@
-import { Section } from "../../../common/section-wrapper";
-import { Heading } from "../../../common/heading";
-import { fragmentOn } from "basehub";
-import { headingFragment, quoteFragment } from "../../../lib/basehub/fragments";
+import { Testimonials } from "./slider";
 
-import { Slider } from "./slider";
-
-export const testimonialsSliderFragment = fragmentOn("TestimonialSliderComponent", {
-  heading: headingFragment,
-  quotes: quoteFragment,
-});
-
-export type TestimonialsSlider = fragmentOn.infer<typeof testimonialsSliderFragment>;
-
-export function Testimonials({ heading, quotes }: TestimonialsSlider) {
-  return (
-    <div className="relative overflow-clip">
-      <Section>
-        <Slider quotes={quotes}>
-          {heading.align === "none" ? (
-            <div />
-          ) : (
-            <Heading className="self-stretch" {...heading}>
-              <h4>{heading.title}</h4>
-            </Heading>
-          )}
-        </Slider>
-      </Section>
-    </div>
-  );
+interface TestimonialsSliderProps {
+  _id: string;
+  heading: {
+    title: string;
+    subtitle?: string;
+    tag?: string;
+    align?: string;
+  };
+  quotes: Array<{
+    _id: string;
+    quote: string;
+    author: {
+      _id: string;
+      _title: string;
+      role: string;
+      image?: {
+        url: string;
+        alt: string | null;
+      };
+      company: {
+        _title: string;
+        image?: {
+          url: string;
+          alt: string | null;
+        };
+      };
+    };
+  }>;
 }
+
+export function TestimonialsSlider({ _id, heading, quotes }: TestimonialsSliderProps) {
+  return <Testimonials _id={_id} heading={heading} quotes={quotes} />;
+}
+
+// Export the Testimonials component directly for backward compatibility
+export { Testimonials };

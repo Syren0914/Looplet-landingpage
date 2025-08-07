@@ -1,20 +1,24 @@
-import type { Faq } from "../../_sections/faq";
+import { AccordionFaq } from "./accordion";
 
-import { Heading } from "../../../common/heading";
-import { Section } from "../../../common/section-wrapper";
-
-import { Accordion } from "./accordion";
-import { GeneralEvents } from "../../../lib/basehub/fragments";
-
-export function AccordionFaq(faq: Faq & { eventsKey: GeneralEvents["ingestKey"] }) {
-  return (
-    <Section>
-      <Heading {...faq.heading}>
-        <h4>{faq.heading.title}</h4>
-      </Heading>
-      <div className="!mx-auto flex w-full !max-w-screen-md gap-8 lg:gap-14 lg:px-24">
-        <Accordion items={faq.questions.items} eventsKey={faq.eventsKey} />
-      </div>
-    </Section>
-  );
+interface AccordionFaqComponentProps {
+  _id: string;
+  heading: {
+    title: string;
+    subtitle?: string;
+    tag?: string;
+    align?: string;
+  };
+  items: Array<{
+    _id: string;
+    question: string;
+    answer: string;
+  }>;
+  eventsKey?: string;
 }
+
+export function AccordionFaqComponent({ _id, heading, items, eventsKey }: AccordionFaqComponentProps) {
+  return <AccordionFaq _id={_id} heading={heading} items={items} eventsKey={eventsKey} />;
+}
+
+// Export the AccordionFaq component directly for backward compatibility
+export { AccordionFaq };

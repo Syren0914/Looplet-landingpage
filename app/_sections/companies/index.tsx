@@ -1,52 +1,40 @@
-import { BaseHubImage } from "basehub/next-image";
-import clsx from "clsx";
+import { Heading } from "@/common/heading";
 
-import { Section } from "../../../common/section-wrapper";
-import { fragmentOn } from "basehub";
+interface CompaniesProps {
+  _id: string;
+  heading: {
+    title: string;
+    subtitle?: string;
+    tag?: string;
+    align?: string;
+  };
+  companies: Array<{
+    _id: string;
+    _title: string;
+    logo: {
+      url: string;
+      alt: string | null;
+    };
+  }>;
+}
 
-import s from "./companies.module.css";
-
-export const companiesFragment = fragmentOn("CompaniesComponent", {
-  subtitle: true,
-  companies: {
-    _title: true,
-    url: true,
-    image: {
-      url: true,
-    },
-  },
-});
-
-type Companies = fragmentOn.infer<typeof companiesFragment>;
-
-export function Companies(props: Companies) {
+export function Companies({ _id, heading, companies }: CompaniesProps) {
   return (
-    <Section container="full">
-      <h2 className="text-center tracking-tight text-[--dark-text-tertiary] opacity-50">
-        {props.subtitle}
-      </h2>
-      <div className="no-scrollbar flex max-w-full justify-center overflow-auto">
-        <div className="bg-linear-to-r from-surface-primary dark:from-dark-surface-primary pointer-events-none absolute left-0 top-0 h-full w-[30vw] bg-transparent xl:hidden" />
-        <div className="bg-linear-to-l from-surface-primary dark:from-dark-surface-primary pointer-events-none absolute right-0 top-0 h-full w-[30vw] bg-transparent xl:hidden" />
-        <div
-          className={clsx("flex shrink-0 items-center gap-4 px-6 lg:gap-6 lg:px-12", s.scrollbar)}
-        >
-          {props.companies.map((company) => (
-            <figure
-              key={company.image?.url ?? company._title}
-              className="flex h-16 items-center px-2 py-3 lg:p-4"
-            >
-              <BaseHubImage
-                alt={company._title}
-                className="w-24 lg:w-32"
-                height={20}
-                src={company.image!.url}
-                width={32}
+    <section className="container mx-auto px-6 py-16">
+      <div className="mx-auto max-w-6xl">
+        <Heading {...heading} />
+        <div className="mt-12 grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-4">
+          {companies.map((company) => (
+            <div key={company._id} className="flex items-center justify-center">
+              <img
+                alt={company.logo.alt ?? company._title}
+                className="h-12 w-auto grayscale opacity-60 transition-opacity hover:opacity-100"
+                src={company.logo.url}
               />
-            </figure>
+            </div>
           ))}
         </div>
       </div>
-    </Section>
+    </section>
   );
 }

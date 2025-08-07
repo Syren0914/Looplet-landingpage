@@ -1,68 +1,84 @@
 "use client";
-import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { MinusCircledIcon, PlusCircledIcon } from "@radix-ui/react-icons";
-import * as React from "react";
-import { type Faq } from "../../_sections/faq";
-import { sendEvent } from "basehub/events";
-import { GeneralEvents } from "../../../lib/basehub/fragments";
 
-export function Accordion({
-  items,
-  eventsKey,
-}: {
-  items: Faq["questions"]["items"];
-  eventsKey: GeneralEvents["ingestKey"];
-}) {
-  const [activeItems, setActiveItems] = React.useState<string[]>([]);
+import { useState } from "react";
 
-  return (
-    <AccordionPrimitive.Root
-      className="flex w-full flex-col items-stretch gap-2 lg:gap-8"
-      type="multiple"
-      value={activeItems}
-      onValueChange={(activeItems) => setActiveItems(activeItems)}
-    >
-      {items.map((item) => (
-        <AccordionItem
-          key={item._title}
-          {...item}
-          eventsKey={eventsKey}
-          isActive={activeItems.includes(item._title)}
-        />
-      ))}
-    </AccordionPrimitive.Root>
-  );
+interface AccordionFaqProps {
+  _id: string;
+  heading: {
+    title: string;
+    subtitle?: string;
+    tag?: string;
+    align?: string;
+  };
+  items: Array<{
+    _id: string;
+    question: string;
+    answer: string;
+  }>;
+  eventsKey?: string;
 }
 
-function AccordionItem({
-  _title,
-  answer,
-  isActive,
-  eventsKey,
-}: Faq["questions"]["items"][0] & { isActive: boolean; eventsKey: GeneralEvents["ingestKey"] }) {
-  return (
-    <AccordionPrimitive.Item key={_title} className="flex flex-col" value={_title}>
-      <AccordionPrimitive.Header>
-        <AccordionPrimitive.Trigger
-          className="outline-hidden focus-visible:ring-3 flex w-full items-start gap-3 rounded-md py-2 text-lg font-medium leading-relaxed tracking-tighter ring-[--accent-500]"
-          onClick={() => {
-            sendEvent(eventsKey, {
-              eventType: "faq_expanded",
-            });
-          }}
-        >
-          {isActive ? (
-            <MinusCircledIcon className="my-1.5 size-4 shrink-0" />
-          ) : (
-            <PlusCircledIcon className="my-1.5 size-4 shrink-0" />
-          )}
+export function AccordionFaq({ _id, heading, items, eventsKey }: AccordionFaqProps) {
+  const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
-          <span className="text-start">{_title}</span>
-        </AccordionPrimitive.Trigger>
-      </AccordionPrimitive.Header>
-      <AccordionPrimitive.Content className="data-[state=closed]:animate-slideUp data-[state=open]:animate-slideDown transform overflow-hidden pl-7 leading-relaxed tracking-tight text-[--text-tertiary] dark:text-[--dark-text-tertiary]">
-        <div>{answer}</div>
-      </AccordionPrimitive.Content>
-    </AccordionPrimitive.Item>
+  const toggleItem = (itemId: string) => {
+    const newOpenItems = new Set(openItems);
+    if (newOpenItems.has(itemId)) {
+      newOpenItems.delete(itemId);
+    } else {
+      newOpenItems.add(itemId);
+    }
+    setOpenItems(newOpenItems);
+  };
+
+  return (
+    <section className="container mx-auto px-6 py-16">
+      <div className="mx-auto max-w-4xl">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-[--text-primary] dark:text-[--dark-text-primary]">
+            {heading.title}
+          </h2>
+          {heading.subtitle && (
+            <p className="mt-4 text-[--text-secondary] dark:text-[--dark-text-secondary]">
+              {heading.subtitle}
+            </p>
+          )}
+        </div>
+        <div className="mt-12 space-y-4">
+          {items.map((item) => (
+            <details
+              key={item._id}
+              open={openItems.has(item._id)}
+              className="group rounded-lg border border-[--border] bg-[--surface-secondary] dark:border-[--dark-border] dark:bg-[--dark-surface-secondary]"
+            >
+              <summary
+                className="flex cursor-pointer items-center justify-between p-6 text-left font-medium text-[--text-primary] dark:text-[--dark-text-primary]"
+                onClick={() => toggleItem(item._id)}
+              >
+                {item.question}
+                <svg
+                  className="h-5 w-5 transform transition-transform group-open:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </summary>
+              <div className="border-t border-[--border] p-6 dark:border-[--dark-border]">
+                <p className="text-[--text-secondary] dark:text-[--dark-text-secondary]">
+                  {item.answer}
+                </p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

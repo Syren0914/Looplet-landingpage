@@ -1,100 +1,43 @@
-import { BaseHubImage } from "basehub/next-image";
-import Link from "next/link";
-import { Heading } from "../../common/heading";
-import { ChangelogList } from "./_components/changelog-list";
-import { changelogListFragment } from "./_components/changelog-fragment";
-import { PageView } from "../../components/page-view";
 import type { Metadata } from "next";
-import { basehub } from "basehub";
-import { notFound } from "next/navigation";
-import "../../basehub.config";
+import { ChangelogList } from "./_components/changelog-list";
 
-export const dynamic = "force-static";
-export const revalidate = 30;
-
-export const generateMetadata = async (): Promise<Metadata | undefined> => {
-  const data = await basehub().query({
-    site: {
-      changelog: {
-        metadata: {
-          title: true,
-          description: true,
-        },
-      },
-    },
-  });
-
-  return {
-    title: data.site.changelog.metadata.title ?? undefined,
-    description: data.site.changelog.metadata.description ?? undefined,
-  };
+export const metadata: Metadata = {
+  title: "Changelog",
+  description: "Latest updates and changes to our platform",
 };
 
-export default async function ChangelogPage() {
-  const {
-    site: { changelog, generalEvents },
-  } = await basehub().query({
-    site: {
-      changelog: {
-        _analyticsKey: true,
-        title: true,
-        subtitle: true,
-        posts: {
-          __args: {
-            orderBy: "publishedAt__DESC",
-          },
-          items: changelogListFragment,
-        },
-        socialLinksTitle: true,
-        socialLinks: { icon: { url: true }, url: true, _title: true, _id: true },
-      },
-      generalEvents: {
-        ingestKey: true,
-      },
-    },
-  });
+// Static changelog data
+const changelogPosts = [
+  {
+    _id: "1",
+    _title: "New Dashboard Features",
+    _slug: "new-dashboard-features",
+    excerpt: "We've added new dashboard features to improve your workflow.",
+    publishedAt: "2024-01-15",
+  },
+  {
+    _id: "2",
+    _title: "Performance Improvements",
+    _slug: "performance-improvements",
+    excerpt: "Major performance improvements across the platform.",
+    publishedAt: "2024-01-10",
+  },
+];
 
-  const socialLinks = changelog.socialLinks;
-  if (changelog.posts.items.length === 0) {
-    return notFound();
-  }
-
+export default function ChangelogPage() {
   return (
-    <>
-      <PageView ingestKey={generalEvents.ingestKey} />
-      <div className="flex items-center justify-between border-b border-[--border] dark:border-[--dark-border]">
-        <div className="mx-auto flex w-full max-w-screen-md flex-col items-start justify-between gap-4 border-r border-[--border] px-8 py-24 dark:border-[--dark-border] md:flex-row md:items-center">
-          <Heading align="left" className="flex-1 !flex-col-reverse" subtitle={changelog.subtitle}>
-            <h1>{changelog.title}</h1>
-          </Heading>
-          <div className="flex items-center gap-2 md:flex-col">
-            <p className="text-sm text-[--text-tertiary] dark:text-[--dark-text-tertiary]">
-              {changelog.socialLinksTitle}
-            </p>
-            <div className="flex gap-2">
-              {socialLinks.map((link) => (
-                <Link
-                  key={link._id}
-                  className="aspect-square hover:brightness-90"
-                  href={link.url}
-                  target="_blank"
-                >
-                  <BaseHubImage
-                    priority
-                    alt={link._title}
-                    height={18}
-                    src={link.icon?.url ?? ""}
-                    width={18}
-                  />
-                </Link>
-              ))}
-            </div>
-          </div>
+    <div className="container mx-auto px-6 py-16">
+      <div className="mx-auto max-w-4xl">
+        <h1 className="text-4xl font-bold text-[--text-primary] dark:text-[--dark-text-primary]">
+          Changelog
+        </h1>
+        <p className="mt-4 text-lg text-[--text-secondary] dark:text-[--dark-text-secondary]">
+          Latest updates and changes to our platform
+        </p>
+        <div className="mt-12">
+          <ChangelogList posts={changelogPosts} />
         </div>
       </div>
-      <div className="!mx-auto !max-w-screen-md px-8 pt-16">
-        <ChangelogList changelogPosts={changelog.posts.items} />
-      </div>
-    </>
+    </div>
   );
 }

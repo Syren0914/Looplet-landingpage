@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { GeneralEvents } from "../../lib/basehub/fragments";
-import { basehub, fragmentOn } from "basehub";
 import { AccordionFaq } from "../_sections/accordion-faq";
 import { BigFeature, bigFeatureFragment } from "../_sections/features/big-feature";
 import { Callout, calloutFragment } from "../_sections/callout-1";
@@ -25,23 +23,14 @@ import {
   settingsLogoLiteFragment,
   SettingsLogoLiteFragment,
 } from "../../components/form-components";
-import "../../basehub.config";
+import { defaultStaticData } from "@/lib/static-data";
 
 export const dynamic = "force-static";
 export const revalidate = 30;
 
 export const generateStaticParams = async () => {
-  const data = await basehub().query({
-    site: {
-      pages: {
-        items: {
-          pathname: true,
-        },
-      },
-    },
-  });
-
-  return data.site.pages.items.map((item) => ({
+  // Use static data instead of Basehub query
+  return defaultStaticData.pages.items.map((item) => ({
     slug: item.pathname.split("/").filter(Boolean),
   }));
 };
@@ -52,37 +41,19 @@ export const generateMetadata = async ({
   params: Promise<{ slug?: string[] }>;
 }): Promise<Metadata | undefined> => {
   const params = await _params;
-  const data = await basehub().query({
-    site: {
-      settings: { metadata: { defaultTitle: true, titleTemplate: true, defaultDescription: true } },
-      pages: {
-        __args: {
-          filter: {
-            pathname: {
-              eq: params.slug ? `/${params.slug.join("/")}` : "/",
-            },
-          },
-        },
-        items: {
-          metadataOverrides: {
-            title: true,
-            description: true,
-          },
-        },
-      },
-    },
-  });
-
-  const page = data.site.pages.items.at(0);
+  
+  // Use static data instead of Basehub query
+  const page = defaultStaticData.pages.items.find(
+    (item) => item.pathname === (params.slug ? `/${params.slug.join("/")}` : "/")
+  );
 
   if (!page) {
     return notFound();
   }
 
   return {
-    title: page.metadataOverrides.title ?? data.site.settings.metadata.defaultTitle,
-    description:
-      page.metadataOverrides.description ?? data.site.settings.metadata.defaultDescription,
+    title: page.metadataOverrides?.title ?? "Your Website",
+    description: page.metadataOverrides?.description ?? "Welcome to our website",
   };
 };
 
@@ -91,8 +62,8 @@ function SectionsUnion({
   eventsKey,
   settings,
 }: {
-  sections: fragmentOn.infer<typeof sectionsFragment>["sections"];
-  eventsKey: GeneralEvents["ingestKey"];
+  sections: any[];
+  eventsKey: string;
   settings: SettingsLogoLiteFragment;
 }): React.ReactNode {
   if (!sections) return null;
@@ -139,32 +110,6 @@ function SectionsUnion({
   });
 }
 
-const sectionsFragment = fragmentOn("PagesItem", {
-  sections: {
-    __typename: true,
-    on_BlockDocument: { _id: true },
-    on_HeroComponent: heroFragment,
-    on_FeaturesCardsComponent: featureCardsComponent,
-    on_FeaturesSideBySideComponent: featuresSideBySideFragment,
-    on_FeaturesBigImageComponent: bigFeatureFragment,
-    on_FeaturesGridComponent: featuresGridFragment,
-    on_CompaniesComponent: companiesFragment,
-    on_CalloutComponent: calloutFragment,
-    on_CalloutV2Component: calloutv2Fragment,
-    on_TestimonialSliderComponent: testimonialsSliderFragment,
-    on_TestimonialsGridComponent: testimonialsGridFragment,
-    on_PricingComponent: pricingFragment,
-    on_PricingTableComponent: pricingTableFragment,
-    on_FeatureHeroComponent: featureHeroFragment,
-    on_FaqComponent: {
-      layout: true,
-      ...faqFragment,
-    },
-    on_FreeformTextComponent: freeformTextFragment,
-    on_FormComponent: formFragment,
-  },
-});
-
 export default async function DynamicPage({
   params: _params,
 }: {
@@ -173,34 +118,12 @@ export default async function DynamicPage({
   const params = await _params;
   const slugs = params.slug;
 
-  const {
-    site: { pages, generalEvents, settings },
-  } = await basehub().query({
-    site: {
-      settings: { ...settingsLogoLiteFragment },
-      pages: {
-        __args: {
-          filter: {
-            pathname: {
-              eq: slugs ? `/${slugs.join("/")}` : "/",
-            },
-          },
-          first: 1,
-        },
-        items: {
-          _analyticsKey: true,
-          _id: true,
-          pathname: true,
-          sections: sectionsFragment.sections,
-        },
-      },
-      generalEvents: {
-        ingestKey: true,
-      },
-    },
-  });
+  // Use static data instead of Basehub query
+  const { pages, generalEvents, settings } = defaultStaticData;
 
-  const page = pages.items[0];
+  const page = pages.items.find(
+    (item) => item.pathname === (slugs ? `/${slugs.join("/")}` : "/")
+  );
 
   if (!page) notFound();
 

@@ -1,97 +1,101 @@
-import NextForm from "next/form";
-import { Section } from "../../../common/section-wrapper";
-import { fragmentOn } from "basehub";
-import { buttonFragment } from "../../../lib/basehub/fragments";
-import {
-  FormLayout,
-  RichTextFormWrapper,
-  SettingsLogoLiteFragment,
-} from "../../../components/form-components";
-import { Button } from "../../../common/button";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
-import { LabeledInput, LabeledTextarea, LabeledWrapper } from "../../../components/labeled-input";
-import { sendEvent, parseFormData } from "basehub/events";
-import { Select } from "../../../components/select";
+"use client";
 
-export const formFragment = fragmentOn("FormComponent", {
-  title: true,
-  subtitle: {
-    json: {
-      content: true,
-    },
-  },
-  cta: buttonFragment,
-  submissions: {
-    ingestKey: true,
-    schema: true,
-  },
-});
-type Form = fragmentOn.infer<typeof formFragment>;
+import { Button } from "@/common/button";
+import { Input } from "@/common/input";
+import { useState } from "react";
 
-export function Form(props: Form & { settingsLogoLite: SettingsLogoLiteFragment }) {
+interface FormProps {
+  _id: string;
+  title: string;
+  description?: string;
+  settingsLogoLite: {
+    logo: {
+      dark: {
+        url: string;
+        alt: string | null;
+        width: number;
+        height: number;
+        aspectRatio: string;
+        blurDataURL: string;
+      };
+      light: {
+        url: string;
+        alt: string | null;
+        width: number;
+        height: number;
+        aspectRatio: string;
+        blurDataURL: string;
+      };
+    };
+  };
+}
+
+export function Form({ _id, title, description, settingsLogoLite }: FormProps) {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simple form submission without Basehub
+    console.log("Form submission:", formData);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    setFormData({ name: "", email: "", message: "" });
+    setIsSubmitting(false);
+  };
+
   return (
-    <Section>
-      <FormLayout
-        {...props}
-        subtitle={
-          props.subtitle ? (
-            <RichTextFormWrapper>{props.subtitle.json.content}</RichTextFormWrapper>
-          ) : null
-        }
-        title={props.title}
-      >
-        <NextForm
-          className="flex flex-col gap-3"
-          action={async (data) => {
-            "use server";
-            const parsedData = parseFormData(
-              props.submissions.ingestKey,
-              props.submissions.schema,
-              data,
-            );
-            if (!parsedData.success) {
-              throw new Error(JSON.stringify(parsedData.errors));
-            }
-            await sendEvent(
-              props.submissions.ingestKey,
-              // @ts-expect-error -- basehub events are typed based on the schema, but this Form component should be generic
-              parsedData.data,
-            );
-          }}
-        >
-          {props.submissions.schema.map((field) => {
-            if (field.type === "textarea") {
-              return (
-                <LabeledTextarea key={field.id} rows={8} className="max-h-64 min-h-16" {...field} />
-              );
-            } else if (field.type === "select" || field.type === "radio") {
-              return (
-                <LabeledWrapper key={field.id} label={field.label} id={field.id}>
-                  <Select id={field.id} name={field.name} required={field.required}>
-                    {field.options.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </Select>
-                </LabeledWrapper>
-              );
-            } else {
-              return <LabeledInput key={field.id} {...field} />;
-            }
-          })}
-          <div className="mt-3 flex items-center justify-between">
-            <Button
-              icon={props.cta.icon ?? <ArrowRightIcon className="size-5" />}
-              iconSide="right"
-              intent={props.cta.type}
-              type="submit"
-            >
-              {props.cta.label}
-            </Button>
+    <section className="container mx-auto px-6 py-16">
+      <div className="mx-auto max-w-md">
+        <div className="rounded-lg border border-[--border] bg-[--surface-primary] p-6 dark:border-[--dark-border] dark:bg-[--dark-surface-primary]">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-[--text-primary] dark:text-[--dark-text-primary]">
+              {title}
+            </h2>
+            {description && (
+              <p className="mt-2 text-[--text-secondary] dark:text-[--dark-text-secondary]">
+                {description}
+              </p>
+            )}
           </div>
-        </NextForm>
-      </FormLayout>
-    </Section>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              type="text"
+              placeholder="Name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
+            <Input
+              type="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+            />
+            <textarea
+              placeholder="Message"
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              required
+              className="w-full rounded-md border border-[--border] bg-[--surface-primary] px-3 py-2 text-[--text-primary] placeholder:text-[--text-tertiary] dark:border-[--dark-border] dark:bg-[--dark-surface-primary] dark:text-[--dark-text-primary] dark:placeholder:text-[--dark-text-tertiary]"
+              rows={4}
+            />
+            <Button type="submit" disabled={isSubmitting} className="w-full">
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </Button>
+          </form>
+        </div>
+      </div>
+    </section>
   );
 }

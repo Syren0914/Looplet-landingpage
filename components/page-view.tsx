@@ -1,14 +1,15 @@
 "use client";
 
-import { GeneralEvents } from "../lib/basehub/fragments";
-import { sendEvent } from "basehub/events";
-import * as React from "react";
+import { useEffect } from "react";
 
-export function PageView({ ingestKey }: { ingestKey: GeneralEvents["ingestKey"] }) {
-  React.useEffect(() => {
-    sendEvent(ingestKey, {
-      eventType: "view",
-    });
+interface PageViewProps {
+  ingestKey?: string;
+}
+
+export function PageView({ ingestKey }: PageViewProps) {
+  useEffect(() => {
+    // Simple page view tracking without Basehub
+    console.log("Page view tracked:", ingestKey);
   }, [ingestKey]);
 
   return null;

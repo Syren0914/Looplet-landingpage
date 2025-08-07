@@ -1,181 +1,104 @@
 "use client";
-import { type EmblaCarouselType } from "embla-carousel";
+
+import { ButtonLink } from "@/common/button";
+import { Heading } from "@/common/heading";
+import { QuoteFragment } from "@/lib/static-data";
+import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
+import { useCallback, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import * as React from "react";
-import { BaseHubImage } from "basehub/next-image";
-import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
-import clsx from "clsx";
 
-import { type TestimonialsSlider } from ".";
-import { Button } from "../../../common/button";
+interface TestimonialsSliderProps {
+  _id: string;
+  heading: {
+    title: string;
+    subtitle?: string;
+    tag?: string;
+    align?: string;
+  };
+  quotes: QuoteFragment[];
+}
 
-export function Slider({
-  quotes,
-  children,
-}: {
-  quotes: TestimonialsSlider["quotes"];
-  children: React.ReactNode;
-}) {
+export function Testimonials({ _id, heading, quotes }: TestimonialsSliderProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       align: "start",
-      breakpoints: {
-        640: {
-          align: "center",
-        },
-      },
+      loop: true,
     },
     [WheelGesturesPlugin()],
   );
 
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
-  const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([]);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
 
-  const onDotButtonClick = React.useCallback(
-    (index: number) => {
-      if (!emblaApi) return;
-      emblaApi.scrollTo(index);
-    },
-    [emblaApi],
-  );
-
-  const onInit = React.useCallback((emblaApi: EmblaCarouselType) => {
-    setScrollSnaps(emblaApi.scrollSnapList());
-  }, []);
-
-  const onSelect = React.useCallback((emblaApi: EmblaCarouselType) => {
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, []);
-
-  const onPrevButtonClick = React.useCallback(() => {
-    if (!emblaApi) return;
-    emblaApi.scrollPrev();
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
   }, [emblaApi]);
 
-  const onNextButtonClick = React.useCallback(() => {
-    if (!emblaApi) return;
-    emblaApi.scrollNext();
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
-  React.useEffect(() => {
+  const onSelect = useCallback(() => {
     if (!emblaApi) return;
-
-    onSelect(emblaApi);
-    emblaApi.on("reInit", onSelect);
-    emblaApi.on("select", onSelect);
-  }, [emblaApi, onSelect]);
-
-  React.useEffect(() => {
-    if (!emblaApi) return;
-
-    onInit(emblaApi);
-    onSelect(emblaApi);
-    emblaApi.on("reInit", onInit);
-    emblaApi.on("reInit", onSelect);
-    emblaApi.on("select", onSelect);
-  }, [emblaApi, onInit, onSelect]);
+    setCanScrollPrev(emblaApi.canScrollPrev());
+    setCanScrollNext(emblaApi.canScrollNext());
+  }, [emblaApi]);
 
   return (
-    <div className="flex w-full flex-col gap-14">
-      <div className="flex justify-between">
-        {children}
-        <div className="hidden gap-4 sm:flex">
-          <Button
-            aria-label="Previous testimonial"
-            className="!h-auto rounded-full px-4 py-2"
-            intent="secondary"
-            onClick={onPrevButtonClick}
-          >
-            <ArrowLeftIcon className="size-6" />
-          </Button>
-          <Button
-            aria-label="Next testimonial"
-            className="!h-auto rounded-full !px-4 !py-2"
-            intent="secondary"
-            onClick={onNextButtonClick}
-          >
-            <ArrowRightIcon className="size-6" />
-          </Button>
-        </div>
-      </div>
-      <div ref={emblaRef} className="relative">
-        <div className="relative flex h-full w-full gap-10 md:gap-0">
-          {quotes.map((item) => (
-            <TesimonialCard key={item._id} {...item} />
-          ))}
-        </div>
-        <div className="mt-4 flex w-full justify-center gap-2 md:hidden">
-          {scrollSnaps.map((snap, index) => (
-            <button
-              key={snap}
-              aria-label={`Testimonial ${String(index + 1)}`}
-              className={clsx(
-                "group flex items-center justify-center rounded-full p-1",
-                index === selectedIndex ? "bg-[--accent-500-50]" : "",
-              )}
-              onClick={() => onDotButtonClick(index)}
-            >
-              <span
-                className={clsx(
-                  "size-2 rounded-full",
-                  index === selectedIndex
-                    ? "bg-[--accent-500]"
-                    : "bg-[--surface-tertiary] dark:bg-[--dark-surface-secondary]",
-                )}
-              />
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function VainillaCard({ quote, author }: TestimonialsSlider["quotes"][0]) {
-  return (
-    <div className="min-w-0 max-w-full shrink-0 grow-0 basis-[min(740px,100%)] self-stretch md:pr-10">
-      <article className="embla__slide !last:visible flex h-full w-full min-w-0 transform touch-pan-y touch-pinch-zoom select-none flex-col rounded-xl border border-[--border] [backface-visibility:hidden] dark:border-[--dark-border]">
-        <div className="flex flex-1 items-start border-b border-[--border] px-5 py-[18px] dark:border-[--dark-border] md:px-8 md:py-7">
-          <blockquote className="text-pretty text-xl font-extralight leading-[135%] text-[--text-primary] dark:text-[--dark-text-primary] sm:text-2xl md:text-4xl">
-            “{quote}”
-          </blockquote>
-        </div>
-        <div className="flex items-center gap-4 pl-5">
-          <div className="flex flex-1 items-center gap-5 border-r border-[--border] py-4 dark:border-[--dark-border]">
-            <BaseHubImage
-              alt={author._title}
-              className="hidden size-16 rounded-full md:block"
-              height={64}
-              src={author.image.url}
-              width={64}
-            />
-            <div className="flex flex-1 flex-col">
-              <h5 className="text-base font-medium md:text-lg">{author._title}</h5>
-              <p className="text-pretty text-sm text-[--text-tertiary] dark:text-[--dark-text-tertiary] md:text-base">
-                {author._title}, {author.company._title}
-              </p>
+    <section className="container mx-auto px-6 py-16">
+      <div className="flex flex-col gap-8">
+        <Heading {...heading} />
+        <div className="relative">
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex">
+              {quotes.map((quote) => (
+                <div key={quote._id} className="flex-[0_0_100%] min-w-0 pl-4 md:flex-[0_0_50%] lg:flex-[0_0_33.333%]">
+                  <div className="flex h-full flex-col gap-4 rounded-lg border border-[--border] bg-[--surface-secondary] p-6 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary]">
+                    <blockquote className="flex-1 text-[--text-secondary] dark:text-[--dark-text-secondary]">
+                      "{quote.quote}"
+                    </blockquote>
+                    <div className="flex items-center gap-3">
+                      {quote.author.image && (
+                        <img
+                          alt={quote.author.image.alt ?? "Author"}
+                          className="size-10 rounded-full"
+                          height={40}
+                          src={quote.author.image.url}
+                          width={40}
+                        />
+                      )}
+                      <div className="flex flex-col">
+                        <cite className="not-italic font-medium text-[--text-primary] dark:text-[--dark-text-primary]">
+                          {quote.author._title}
+                        </cite>
+                        <span className="text-sm text-[--text-tertiary] dark:text-[--dark-text-tertiary]">
+                          {quote.author.role}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="pr-5">
-            {author.company.image ? (
-              <BaseHubImage
-                alt={author.company.image.alt ?? author.company._title}
-                className="w-12 md:w-16"
-                height={48}
-                src={author.company.image.url}
-                width={48}
-              />
-            ) : null}
-          </div>
+          <ButtonLink
+            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-[--border] bg-[--surface-primary] p-2 dark:border-[--dark-border] dark:bg-[--dark-surface-primary] disabled:opacity-50"
+            disabled={!canScrollPrev}
+            onClick={scrollPrev}
+            unstyled
+          >
+            <ChevronLeftIcon className="size-4" />
+          </ButtonLink>
+          <ButtonLink
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-[--border] bg-[--surface-primary] p-2 dark:border-[--dark-border] dark:bg-[--dark-surface-primary] disabled:opacity-50"
+            onClick={scrollNext}
+            unstyled
+          >
+            <ChevronRightIcon className="size-4" />
+          </ButtonLink>
         </div>
-      </article>
-    </div>
+      </div>
+    </section>
   );
 }
-
-export const TesimonialCard = React.memo(
-  VainillaCard,
-  (prevProps, nextProps) =>
-    prevProps.quote === nextProps.quote && prevProps.author === nextProps.author,
-);

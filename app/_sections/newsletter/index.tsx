@@ -1,54 +1,65 @@
-import NextForm from "next/form";
-import * as React from "react";
-import { Section } from "../../../common/section-wrapper";
-import { Input } from "../../../common/input";
-import { parseFormData, sendEvent } from "basehub/events";
-import { fragmentOn } from "basehub";
+"use client";
 
-export const newsletterFragment = fragmentOn("Newsletter", {
-  title: true,
-  description: true,
-  submissions: {
-    ingestKey: true,
-    schema: true,
-  },
-});
+import { Button } from "@/common/button";
+import { Input } from "@/common/input";
+import { useState } from "react";
 
-export type NewsletterFragment = fragmentOn.infer<typeof newsletterFragment>;
+interface NewsletterProps {
+  newsletter: {
+    title: string;
+    description: string;
+    placeholder: string;
+    buttonText: string;
+    submissions: {
+      ingestKey: string;
+      schema: Record<string, any>;
+    };
+  };
+}
 
-export function Newsletter({ newsletter }: { newsletter: NewsletterFragment }) {
-  const emailInput = newsletter.submissions.schema.find((field) => field.type === "email");
+export function Newsletter({ newsletter }: NewsletterProps) {
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simple newsletter subscription without Basehub
+    console.log("Newsletter subscription:", email);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    setEmail("");
+    setIsSubmitting(false);
+  };
 
   return (
-    <Section
-      className="bg-[--surface-secondary] !py-10 dark:bg-[--dark-surface-secondary]"
-      container="full"
-    >
-      <div className="container mx-auto flex flex-col gap-4 px-6 lg:flex-row lg:justify-between">
-        <div className="flex flex-1 flex-col items-start gap-1">
-          <h5 className="text-xl font-medium lg:text-2xl">{newsletter.title}</h5>
-          <p className="text text-[--text-tertiary] dark:text-[--dark-text-tertiary] lg:text-lg">
+    <section className="border-t border-[--border] bg-[--surface-secondary] dark:border-[--dark-border] dark:bg-[--dark-surface-secondary]">
+      <div className="container mx-auto px-6 py-16">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-bold text-[--text-primary] dark:text-[--dark-text-primary]">
+            {newsletter.title}
+          </h2>
+          <p className="mt-4 text-[--text-secondary] dark:text-[--dark-text-secondary]">
             {newsletter.description}
           </p>
+          <form onSubmit={handleSubmit} className="mt-8 flex gap-4">
+            <Input
+              type="email"
+              placeholder={newsletter.placeholder}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="flex-1"
+            />
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Subscribing..." : newsletter.buttonText}
+            </Button>
+          </form>
         </div>
-
-        <NextForm
-          action={async (data) => {
-            "use server";
-            const parsedData = parseFormData(
-              newsletter.submissions.ingestKey,
-              newsletter.submissions.schema,
-              data,
-            );
-            if (!parsedData.success) {
-              throw new Error(JSON.stringify(parsedData.errors));
-            }
-            await sendEvent(newsletter.submissions.ingestKey, parsedData.data);
-          }}
-        >
-          <Input {...emailInput} />
-        </NextForm>
       </div>
-    </Section>
+    </section>
   );
 }

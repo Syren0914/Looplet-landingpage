@@ -1,80 +1,60 @@
-import { BaseHubImage } from "basehub/next-image";
+import { Button } from "@/common/button";
+import { Heading } from "@/common/heading";
 
-import { Heading } from "../../../../common/heading";
-import { Section } from "../../../../common/section-wrapper";
-import { fragmentOn } from "basehub";
-import { buttonFragment, headingFragment } from "../../../../lib/basehub/fragments";
-import { TrackedButtonLink } from "../../../../components/tracked-button";
-import { GeneralEvents } from "../../../../lib/basehub/fragments";
+interface FeaturesGridProps {
+  _id: string;
+  heading: {
+    title: string;
+    subtitle?: string;
+    tag?: string;
+    align?: string;
+  };
+  features: Array<{
+    _id: string;
+    _title: string;
+    description: string;
+    icon?: string;
+    cta?: {
+      label: string;
+      href: string;
+      type: string;
+    };
+  }>;
+  eventsKey?: string;
+}
 
-export const featuresGridFragment = fragmentOn("FeaturesGridComponent", {
-  _analyticsKey: true,
-  featuresGridList: {
-    items: {
-      _id: true,
-      _title: true,
-      description: true,
-      icon: {
-        alt: true,
-        url: true,
-      },
-    },
-  },
-  heading: headingFragment,
-  actions: buttonFragment,
-});
-
-type FeaturesGrid = fragmentOn.infer<typeof featuresGridFragment>;
-
-export function FeaturesGrid({
-  heading,
-  featuresGridList,
-  actions,
-  eventsKey,
-}: FeaturesGrid & { eventsKey: GeneralEvents["ingestKey"] }) {
+export function FeaturesGrid({ _id, heading, features, eventsKey }: FeaturesGridProps) {
   return (
-    <Section>
-      <Heading {...heading}>
-        <h4>{heading.title}</h4>
-      </Heading>
-      <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5">
-        {featuresGridList.items.map(({ _id, _title, description, icon }) => (
-          <article
-            key={_id}
-            className="flex flex-col gap-4 rounded-lg border border-[--border] p-4 [box-shadow:_70px_-20px_130px_0px_rgba(255,255,255,0.05)_inset] dark:border-[--dark-border] dark:[box-shadow:_70px_-20px_130px_0px_rgba(255,255,255,0.05)_inset]"
-          >
-            <figure className="flex size-9 items-center justify-center rounded-full border border-[--border] bg-[--surface-secondary] p-2 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary]">
-              <BaseHubImage
-                alt={icon.alt ?? _title}
-                className="dark:invert"
-                height={18}
-                src={icon.url}
-                width={18}
-              />
-            </figure>
-            <div className="flex flex-col items-start gap-1">
-              <h5 className="text-lg font-medium">{_title}</h5>
-              <p className="text-pretty text-[--text-secondary] dark:text-[--dark-text-secondary]">
-                {description}
+    <section className="container mx-auto px-6 py-16">
+      <div className="mx-auto max-w-6xl">
+        <Heading {...heading} />
+        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature) => (
+            <div key={feature._id} className="flex flex-col gap-4 rounded-lg border border-[--border] bg-[--surface-secondary] p-6 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary]">
+              {feature.icon && (
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[--accent-500-10]">
+                  <span className="text-2xl">{feature.icon}</span>
+                </div>
+              )}
+              <h3 className="text-xl font-bold text-[--text-primary] dark:text-[--dark-text-primary]">
+                {feature._title}
+              </h3>
+              <p className="text-[--text-secondary] dark:text-[--dark-text-secondary]">
+                {feature.description}
               </p>
+              {feature.cta && (
+                <Button
+                  href={feature.cta.href}
+                  type={feature.cta.type as any}
+                  className="mt-auto"
+                >
+                  {feature.cta.label}
+                </Button>
+              )}
             </div>
-          </article>
-        ))}
+          ))}
+        </div>
       </div>
-      <div className="flex items-center justify-center gap-3 md:order-3">
-        {actions?.map((action) => (
-          <TrackedButtonLink
-            key={action._id}
-            analyticsKey={eventsKey}
-            href={action.href}
-            intent={action.type}
-            name="cta_click"
-            size="lg"
-          >
-            {action.label}
-          </TrackedButtonLink>
-        ))}
-      </div>
-    </Section>
+    </section>
   );
 }

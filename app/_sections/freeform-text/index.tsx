@@ -1,20 +1,20 @@
-import { fragmentOn } from "basehub";
-import { RichText } from "basehub/react-rich-text";
-import { Section } from "../../../common/section-wrapper";
-import { richTextClasses } from "../../../components/rich-text";
+import { RichText } from "@/components/rich-text";
 
-export const freeformTextFragment = fragmentOn("FreeformTextComponent", {
-  body: { json: { content: true } },
-});
+interface FreeformTextProps {
+  _id: string;
+  content: {
+    json: {
+      content: string;
+    };
+  };
+}
 
-export type FreeformText = fragmentOn.infer<typeof freeformTextFragment>;
-
-export function FreeformText(freeformText: FreeformText) {
+export function FreeformText({ _id, content }: FreeformTextProps) {
   return (
-    <Section>
-      <div className={richTextClasses}>
-        <RichText content={freeformText.body.json.content} />
+    <section className="container mx-auto px-6 py-16">
+      <div className="prose prose-zinc mx-auto max-w-none dark:prose-invert">
+        <RichText content={content.json.content} />
       </div>
-    </Section>
+    </section>
   );
 }

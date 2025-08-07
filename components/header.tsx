@@ -1,14 +1,14 @@
 import { ButtonLink } from "@/common/button";
 import { DarkLightImageAutoscale } from "@/common/dark-light-image";
 import { DesktopMenu, MobileMenu } from "./navigation-menu";
-import { DarkLightImageFragment, HeaderFragment } from "@/lib/basehub/fragments";
+import { StaticLogo, StaticHeader } from "@/lib/static-data";
 
 export const Header = ({
   logo,
   header,
 }: {
-  logo: DarkLightImageFragment;
-  header: HeaderFragment;
+  logo: StaticLogo;
+  header: StaticHeader;
 }) => {
   return (
     <header className="sticky left-0 top-0 z-[110] flex w-full flex-col border-b border-[--border] bg-[--surface-primary] dark:border-[--dark-border] dark:bg-[--dark-surface-primary]">

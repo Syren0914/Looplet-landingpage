@@ -1,66 +1,35 @@
 "use client";
 
-import { GeneralEvents } from "../lib/basehub/fragments";
-import { sendEvent } from "basehub/events";
-import { Button, ButtonLink } from "../common/button";
+import { Button } from "@/common/button";
+import { ButtonHTMLAttributes } from "react";
 
-interface TrackProps {
-  analyticsKey: GeneralEvents["ingestKey"];
-  name: string;
+interface TrackedButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  eventsKey?: string;
+  eventName?: string;
+  eventProperties?: Record<string, any>;
 }
 
-type TrackedButtonProps = React.ComponentProps<typeof Button> & TrackProps;
-
-export const TrackedButton = ({
-  analyticsKey,
+export function TrackedButton({
+  eventsKey,
+  eventName,
+  eventProperties,
   children,
-  onClick,
-  name,
-  ref,
   ...props
-}: TrackedButtonProps) => {
+}: TrackedButtonProps) {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Simple event tracking without Basehub
+    if (eventName) {
+      console.log("Event tracked:", eventName, eventProperties);
+    }
+    
+    if (props.onClick) {
+      props.onClick(e);
+    }
+  };
+
   return (
-    <Button
-      {...props}
-      ref={ref}
-      onClick={(e) => {
-        sendEvent(analyticsKey, {
-          eventType: name,
-        });
-        if (onClick) {
-          onClick(e);
-        }
-      }}
-    >
+    <Button {...props} onClick={handleClick}>
       {children}
     </Button>
   );
-};
-
-type TrackedButtonLinkProps = React.ComponentProps<typeof ButtonLink> & TrackProps;
-
-export const TrackedButtonLink = ({
-  analyticsKey,
-  children,
-  onClick,
-  name,
-  ref,
-  ...props
-}: TrackedButtonLinkProps) => {
-  return (
-    <ButtonLink
-      {...props}
-      ref={ref}
-      onClick={(e) => {
-        sendEvent(analyticsKey, {
-          eventType: name,
-        });
-        if (onClick) {
-          onClick(e);
-        }
-      }}
-    >
-      {children}
-    </ButtonLink>
-  );
-};
+}

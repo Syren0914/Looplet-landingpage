@@ -1,31 +1,33 @@
 "use client";
-import * as React from "react";
 
-import { type AvatarFragment } from "../lib/basehub/fragments";
+import { createContext, useContext } from "react";
 
-interface SearchHitsContextType {
-  authorsAvatars: Record<string, AvatarFragment>;
+export interface AvatarFragment {
+  url: string;
+  alt: string | null;
 }
 
-const SearchHitsContext = React.createContext<SearchHitsContextType | undefined>(undefined);
+interface SearchHitsContextType {
+  hits: Array<{
+    _id: string;
+    _title: string;
+    _slug: string;
+    _type: string;
+    excerpt?: string;
+    image?: AvatarFragment;
+  }>;
+}
 
-export function SearchHitsProvider({
-  authorsAvatars: authors,
-  children,
-}: React.PropsWithChildren<SearchHitsContextType>) {
-  return (
-    <SearchHitsContext.Provider value={{ authorsAvatars: authors }}>
-      {children}
-    </SearchHitsContext.Provider>
-  );
+const SearchHitsContext = createContext<SearchHitsContextType | null>(null);
+
+export function SearchHitsProvider({ children, value }: { children: React.ReactNode; value: SearchHitsContextType }) {
+  return <SearchHitsContext.Provider value={value}>{children}</SearchHitsContext.Provider>;
 }
 
 export function useSearchHits() {
-  const context = React.useContext(SearchHitsContext);
-
+  const context = useContext(SearchHitsContext);
   if (!context) {
     throw new Error("useSearchHits must be used within a SearchHitsProvider");
   }
-
   return context;
 }

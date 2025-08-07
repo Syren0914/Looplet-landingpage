@@ -1,8 +1,7 @@
 import { isExternalLink } from "@/app/_utils/links";
 import { ButtonLink } from "@/common/button";
 import { DarkLightImageAutoscale } from "@/common/dark-light-image";
-import { DarkLightImageFragment, FooterFragment } from "@/lib/basehub/fragments";
-import { BaseHubImage } from "basehub/next-image";
+import { StaticFooter, StaticLogo } from "@/lib/static-data";
 import { Link } from "lucide-react";
 import { ThemeSwitcher } from "./theme-switcher";
 
@@ -10,8 +9,8 @@ export const Footer = ({
   footer,
   logo,
 }: {
-  footer: FooterFragment;
-  logo: DarkLightImageFragment;
+  footer: StaticFooter;
+  logo: StaticLogo;
 }) => {
   return (
     <footer className="border-t border-[--border] py-16 dark:border-[--dark-border]">
@@ -53,7 +52,7 @@ export const Footer = ({
                   href={link.url}
                   target="_blank"
                 >
-                  <BaseHubImage
+                  <img
                     alt={link._title}
                     height={24}
                     src={link.icon?.url ?? ""}
