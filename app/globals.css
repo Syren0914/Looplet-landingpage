@@ -20,7 +20,7 @@
     --popover-foreground: 160 14% 93%;
 
     /* Primary Accent Colors */
-    --primary: 165 96% 71%; /* #78fcd6 */
+    --primary: 236 51% 57%; /* #78fcd6 */
     --primary-foreground: 160 8% 6%; /* #0d0f0e */
     --primary-dark: 160 100% 50%; /* #00ffb6 */
     --primary-light: 160 48% 87%; /* New variable for lighter teal/green shades */
@@ -48,5 +48,14 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Font family definitions */
+  .font-sans {
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  }
+  
+  .font-mono {
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   }
 }

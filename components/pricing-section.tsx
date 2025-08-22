@@ -102,7 +102,7 @@ export function PricingSection() {
         {pricingPlans.map((plan) => (
           <div
             key={plan.name}
-            className={`flex-1 p-4 overflow-hidden rounded-xl flex flex-col justify-start items-start gap-6 ${plan.popular ? "bg-primary shadow-[0px_4px_8px_-2px_rgba(0,0,0,0.10)]" : "bg-gradient-to-b from-gray-50/5 to-gray-50/0"}`}
+            className={`flex-1 p-4 overflow-hidden rounded-xl flex flex-col justify-start items-start gap-6 ${plan.popular ? "bg-[#5968ff] shadow-[0px_4px_8px_-2px_rgba(0,0,0,0.10)]" : "bg-gradient-to-b from-gray-50/5 to-gray-50/0"}`}
             style={plan.popular ? {} : { outline: "1px solid hsl(var(--border))", outlineOffset: "-1px" }}
           >
             <div className="self-stretch flex flex-col justify-start items-start gap-6">
@@ -166,7 +166,7 @@ export function PricingSection() {
               >
                 <div className="px-1.5 flex justify-center items-center gap-2">
                   <span
-                    className={`text-center text-sm font-medium leading-tight ${plan.name === "Free" ? "text-gray-800" : plan.name === "Pro" ? "text-primary" : "text-zinc-950"}`}
+                    className={`text-center text-sm font-medium leading-tight ${plan.name === "Free" ? "text-gray-800" : plan.name === "Pro" ? "text-[#5968ff]" : "text-zinc-950"}`}
                   >
                     {plan.buttonText}
                   </span>

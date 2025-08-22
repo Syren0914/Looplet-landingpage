@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react"
 import * as THREE from "three"
 
-export function ShaderAnimation() {
+export function ShaderAnimation2() {
   const containerRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<{
     camera: THREE.Camera
@@ -36,7 +36,7 @@ export function ShaderAnimation() {
 
       void main(void) {
         vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
-        float t = time*0.01;
+        float t = time*0.04;
         float lineWidth = 0.002;
 
         vec3 color = vec3(0.0);
@@ -46,7 +46,7 @@ export function ShaderAnimation() {
           }
         }
         
-        gl_FragColor = vec4(0.1*color[0]+0.4*color[1], 0.0, color[2] + 0.5 * color[0], 0.5);
+        gl_FragColor = vec4(0.1*color[0]+0.4*color[1], 0.0, color[2] + 0.5 * color[0], 1.0);
 
       }
     `

@@ -158,7 +158,7 @@ const RealtimeCodingPreviews: React.FC = () => {
               alignItems: "center",
               justifyContent: "center",
               gap: "7.907px",
-              background: "var(--realtime-primary-color)",
+              background: "#373d87",
               color: "var(--realtime-text-preview)",
               border: "none",
               cursor: "pointer",
@@ -230,7 +230,7 @@ const RealtimeCodingPreviews: React.FC = () => {
           >
             <defs>
               <linearGradient id="connectionGradient" x1="1" y1="0" x2="1" y2="285.088" gradientUnits="userSpaceOnUse">
-                <stop stopColor="var(--realtime-primary-color)" stopOpacity="0" />
+                <stop stopColor="#373d87" stopOpacity="0" />
                 <stop offset="0.5" stopColor="var(--realtime-primary-color)" />
                 <stop offset="1" stopColor="var(--realtime-primary-color)" stopOpacity="0" />
               </linearGradient>

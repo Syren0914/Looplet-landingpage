@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react';
-
+import Image from 'next/image';
 // --- Icons ---
 // Using SVG components for icons, similar to lucide-react
 const MenuIcon = ({ className }: { className?: string }) => (
@@ -141,7 +141,7 @@ const Header = () => {
   };
 
   return (
-    <header className=" backdrop-blur-sm sticky top-0 z-50 w-full ">
+    <header className="  sticky top-0 z-50 w-full ">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
@@ -149,8 +149,8 @@ const Header = () => {
           <div className="flex items-center gap-10">
             {/* Logo */}
             <a href="#" className="flex items-center gap-2 flex-shrink-0">
-               <MountainIcon className="h-6 w-6 text-white" />
-              <span className="text-lg font-semibold text-white">Acme Inc</span>
+               <Image src="/looplet.png" alt="Looplet" width={32} height={32} />
+              <span className="text-lg font-semibold text-white">Looplet</span>
             </a>
 
             {/* Desktop Navigation */}
