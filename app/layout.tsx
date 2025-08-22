@@ -5,7 +5,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Looplet',
-  description: 'Created with v0',
+  description: 'Created by looplet',
   generator: 'v0.dev',
 }
 
